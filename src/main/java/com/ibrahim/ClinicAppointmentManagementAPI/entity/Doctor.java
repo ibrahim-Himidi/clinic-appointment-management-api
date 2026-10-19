@@ -29,7 +29,4 @@ public class Doctor {
     private String specialization;
     @Column(name = "email" , nullable = false ,  unique = true)
     private  String email;
-    @Column(nullable = false)
-    private boolean active = true;
-
 }
