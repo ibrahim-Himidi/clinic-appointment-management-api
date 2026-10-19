@@ -48,7 +48,7 @@ public class PatientService {
         return dtoList;
     }
 
-    @Transactional
+
     public void deletePatient(Long id) {
         if (patientRepository.existsById(id))
             patientRepository.deleteById(id);
