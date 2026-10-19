@@ -15,6 +15,7 @@ import com.ibrahim.ClinicAppointmentManagementAPI.service.AppointmentService;
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -43,4 +44,19 @@ public class AppointmentController {
             @PathVariable Long id) {
         return ResponseEntity.ok(appointmentService.getAppointmentById(id));
     }
+
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<AppointmentResponseDTO> cancelAppointment(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.cancelAppointment(id));
+    }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<AppointmentResponseDTO> completeAppointment(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(appointmentService.completeAppointment(id));
+    }
+
+
+
 }

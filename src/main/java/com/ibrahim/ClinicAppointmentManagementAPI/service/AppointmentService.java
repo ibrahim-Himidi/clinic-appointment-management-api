@@ -15,15 +15,17 @@ import com.ibrahim.ClinicAppointmentManagementAPI.repository.AppointmentReposito
 import com.ibrahim.ClinicAppointmentManagementAPI.repository.DoctorRepository;
 import com.ibrahim.ClinicAppointmentManagementAPI.repository.PatientRepository;
 
+import jakarta.transaction.Transactional;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -132,11 +134,52 @@ public class AppointmentService {
 
         public AppointmentResponseDTO getAppointmentById(Long id) {
 
-        // 1. appointmentRepository.findById(id)
-        Appointment appointement= appointmentRepository.findById(id).
-                orElseThrow(()-> new AppointmentNotFoundException("Appointement not found with id: " + id));
+                // 1. appointmentRepository.findById(id)
+                Appointment appointement = appointmentRepository.findById(id).orElseThrow(
+                                () -> new AppointmentNotFoundException("Appointement not found with id: " + id));
 
-        return appointmentMapper.toResponseDTO(appointement);
-}
+                return appointmentMapper.toResponseDTO(appointement);
+        }
+
+        @Transactional
+        public AppointmentResponseDTO cancelAppointment(Long id) {
+
+                Appointment appointment = appointmentRepository.findById(id).orElseThrow(
+                                () -> new AppointmentNotFoundException("Appointement not found with id: " + id));
+
+                if (appointment.getStatus() == AppointmentStatusEnum.CANCELLED) {
+                        return appointmentMapper.toResponseDTO(appointment);
+                }
+
+                if (appointment.getStatus() == AppointmentStatusEnum.COMPLETED) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.CONFLICT,
+                                        "Completed appointments cannot be cancelled");
+                }
+
+                appointment.setStatus(AppointmentStatusEnum.CANCELLED);
+                return appointmentMapper.toResponseDTO(appointment);
+        }
+
+        @Transactional
+        public AppointmentResponseDTO completeAppointment(Long id) {
+
+                Appointment appointment = appointmentRepository.findById(id).orElseThrow(
+                                () -> new AppointmentNotFoundException("Appointement not found with id: " + id));
+
+                // 2. CANCELLED ise 409 Conflict
+                if (appointment.getStatus() == AppointmentStatusEnum.CANCELLED) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.CONFLICT,
+                                        "This appointment has been cancelled and cannot be completed.");
+                }
+                if (appointment.getStatus() == AppointmentStatusEnum.COMPLETED) {
+                        return appointmentMapper.toResponseDTO(appointment);
+                }
+
+                appointment.setStatus(AppointmentStatusEnum.COMPLETED);
+                return appointmentMapper.toResponseDTO(appointment);
+
+        }
 
 }

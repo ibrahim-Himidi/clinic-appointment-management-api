@@ -13,8 +13,6 @@ import com.ibrahim.ClinicAppointmentManagementAPI.exception.PatientNotFoundExcep
 import com.ibrahim.ClinicAppointmentManagementAPI.mapper.PatientMapper;
 import com.ibrahim.ClinicAppointmentManagementAPI.repository.PatientRepository;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class PatientService {
     private final PatientRepository patientRepository;
