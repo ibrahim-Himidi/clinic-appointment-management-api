@@ -3,7 +3,9 @@ package com.ibrahim.ClinicAppointmentManagementAPI.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.ibrahim.ClinicAppointmentManagementAPI.dto.request.DoctorPatchDTO;
 import com.ibrahim.ClinicAppointmentManagementAPI.dto.request.DoctorRequestDTO;
@@ -11,6 +13,7 @@ import com.ibrahim.ClinicAppointmentManagementAPI.dto.response.DoctorResponseDTO
 import com.ibrahim.ClinicAppointmentManagementAPI.entity.Doctor;
 import com.ibrahim.ClinicAppointmentManagementAPI.exception.DoctorNotFoundException;
 import com.ibrahim.ClinicAppointmentManagementAPI.mapper.DoctorMapper;
+import com.ibrahim.ClinicAppointmentManagementAPI.repository.AppointmentRepository;
 import com.ibrahim.ClinicAppointmentManagementAPI.repository.DoctorRepository;
 
 import jakarta.transaction.Transactional;
@@ -19,13 +22,16 @@ import jakarta.transaction.Transactional;
 public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final DoctorMapper doctorMapper;
+    private final AppointmentRepository appointmentRepository;
 
     public DoctorService(
             DoctorRepository doctorRepository,
-            DoctorMapper doctorMapper) {
+            DoctorMapper doctorMapper,
+            AppointmentRepository appointmentRepository) {
 
         this.doctorRepository = doctorRepository;
         this.doctorMapper = doctorMapper;
+        this.appointmentRepository = appointmentRepository;
     }
 
     public DoctorResponseDTO createDoctor(DoctorRequestDTO request) {
@@ -66,10 +72,16 @@ public class DoctorService {
     }
 
     @Transactional
-    public void  deleteById(Long id) {
+    public void deleteById(Long id) {
         doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException("Doctor not found with id: " + id));
+        if (appointmentRepository.existsByDoctorId(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Cannot delete doctor because they have existing appointments");
+        }
         doctorRepository.deleteById(id);
+
     }
 
 }

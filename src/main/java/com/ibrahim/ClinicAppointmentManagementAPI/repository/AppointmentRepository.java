@@ -10,12 +10,14 @@ import com.ibrahim.ClinicAppointmentManagementAPI.entity.AppointmentStatusEnum;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
-    boolean existsByDoctorIdAndAppointmentDate(
-            Long doctorId,
-            LocalDateTime appointmentDate);
+        boolean existsByDoctorIdAndAppointmentDate(
+                        Long doctorId,
+                        LocalDateTime appointmentDate);
 
-    boolean existsByDoctorIdAndAppointmentDateAndStatusNot(
-            Long doctorId,
-            LocalDateTime appointmentDate,
-            AppointmentStatusEnum status);
+        boolean existsByDoctorIdAndAppointmentDateAndStatusNot(
+                        Long doctorId,
+                        LocalDateTime appointmentDate,
+                        AppointmentStatusEnum status);
+
+        boolean existsByDoctorId(Long doctorId);
 }
