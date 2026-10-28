@@ -11,5 +11,5 @@ import com.ibrahim.ClinicAppointmentManagementAPI.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String emial);
 
-    Boolean exexistsByEmail(String email);
+    Boolean existsByEmail(String email);
 }
