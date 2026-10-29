@@ -1,16 +1,17 @@
 package com.ibrahim.ClinicAppointmentManagementAPI.security;
 
-import java.util.Optional;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import com.ibrahim.ClinicAppointmentManagementAPI.entity.User;
 import com.ibrahim.ClinicAppointmentManagementAPI.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+@Service 
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;

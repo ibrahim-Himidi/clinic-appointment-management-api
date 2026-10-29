@@ -10,5 +10,6 @@ import jakarta.validation.constraints.Size;
 public record CreateEmployeeRequestDTO(
         @NotBlank @Email String email,
         @NotBlank @Size(min = 6) String password,
-        @NotNull  RoleEnum role) {
+        @NotNull  RoleEnum role
+) {
 }

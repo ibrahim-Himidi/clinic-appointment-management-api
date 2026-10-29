@@ -12,7 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor 
 public class UserService {
 
     private final UserRepository userRepository;
@@ -21,7 +21,6 @@ public class UserService {
     @Transactional
     public void createEmployee(CreateEmployeeRequestDTO request) {
 
-        // TODO 1: Rol kontrolü
         if (request.role() != RoleEnum.ROLE_DOCTOR &&
                 request.role() != RoleEnum.ROLE_RECEPTIONIST) {
 
