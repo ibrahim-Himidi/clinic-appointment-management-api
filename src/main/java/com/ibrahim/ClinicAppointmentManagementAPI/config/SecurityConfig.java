@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.ibrahim.ClinicAppointmentManagementAPI.security.CustomAuthenticationEntryPoint;
 import com.ibrahim.ClinicAppointmentManagementAPI.security.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -20,64 +21,68 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http)
+                        throws Exception {
 
-        http
-                // JWT tabanlı, cookie kullanmayan API için CSRF kapalı
-                .csrf(AbstractHttpConfigurer::disable)
+                http
+                                // JWT tabanlı, cookie kullanmayan API için CSRF kapalı
+                                .csrf(AbstractHttpConfigurer::disable)
 
-                // HTTP Session kullanılmayacak
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                // HTTP Session kullanılmayacak
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .exceptionHandling(ex -> ex
+                                                .authenticationEntryPoint(authenticationEntryPoint))
 
-                // Endpoint yetkilendirmeleri
-                .authorizeHttpRequests(auth -> auth
+                                // Endpoint yetkilendirmeleri
+                                .authorizeHttpRequests(auth -> auth
 
-                        // Login herkese açık
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/receptionist/**").hasAnyRole("RECEPTIONIST", "ADMIN")
-                        .requestMatchers("/api/doctor/**").hasAnyRole("DOCTOR", "ADMIN")
-                        .requestMatchers("/api/patients/**").hasAnyRole("PATIENT", "ADMIN")
-                        .anyRequest().authenticated())
+                                                // Login herkese açık
+                                                .requestMatchers("/api/auth/login").permitAll()
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/api/receptionist/**")
+                                                .hasAnyRole("RECEPTIONIST", "ADMIN")
+                                                .requestMatchers("/api/doctor/**").hasAnyRole("DOCTOR", "ADMIN")
+                                                .requestMatchers("/api/patients/**").hasAnyRole("PATIENT", "ADMIN")
+                                                .anyRequest().authenticated())
 
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class)
-                // Varsayılan Basic Authentication kapalı
-                .httpBasic(AbstractHttpConfigurer::disable)
+                                .addFilterBefore(
+                                                jwtAuthenticationFilter,
+                                                UsernamePasswordAuthenticationFilter.class)
+                                // Varsayılan Basic Authentication kapalı
+                                .httpBasic(AbstractHttpConfigurer::disable)
 
-                // Varsayılan form login kapalı
-                .formLogin(AbstractHttpConfigurer::disable);
+                                // Varsayılan form login kapalı
+                                .formLogin(AbstractHttpConfigurer::disable);
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration configuration) throws Exception {
+        @Bean
+        public AuthenticationManager authenticationManager(
+                        AuthenticationConfiguration configuration) throws Exception {
 
-        return configuration.getAuthenticationManager();
-    }
+                return configuration.getAuthenticationManager();
+        }
 
-    @Bean
-    public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration(
-            JwtAuthenticationFilter filter) {
+        @Bean
+        public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration(
+                        JwtAuthenticationFilter filter) {
 
-        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
+                FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>(filter);
 
-        registration.setEnabled(false);
+                registration.setEnabled(false);
 
-        return registration;
-    }
+                return registration;
+        }
 
 }
