@@ -2,9 +2,11 @@ package com.ibrahim.ClinicAppointmentManagementAPI.security;
 
 import java.io.IOException;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Override
     protected void doFilterInternal(
@@ -69,18 +72,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (JwtException | IllegalArgumentException e) {
-            // Geçersiz veya süresi dolmuş JWT
             SecurityContextHolder.clearContext();
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Invalid or expired JWT");
+
+            authenticationEntryPoint.commence(
+                    request,
+                    response,
+                    new BadCredentialsException("Invalid or expired JWT", e));
+
             return;
 
-        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             SecurityContextHolder.clearContext();
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Token user not found");
+
+            authenticationEntryPoint.commence(
+                    request,
+                    response,
+                    new BadCredentialsException("Token user not found", e));
+
             return;
         }
 

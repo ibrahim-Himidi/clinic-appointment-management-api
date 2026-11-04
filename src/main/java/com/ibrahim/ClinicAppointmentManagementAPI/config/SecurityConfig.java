@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.ibrahim.ClinicAppointmentManagementAPI.security.CustomAccessDeniedHandler;
 import com.ibrahim.ClinicAppointmentManagementAPI.security.CustomAuthenticationEntryPoint;
 import com.ibrahim.ClinicAppointmentManagementAPI.security.JwtAuthenticationFilter;
 
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
         private final JwtAuthenticationFilter jwtAuthenticationFilter;
         private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+        private final CustomAccessDeniedHandler accessDeniedHandler;
 
         @Bean
         public PasswordEncoder passwordEncoder() {
@@ -42,6 +44,9 @@ public class SecurityConfig {
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint(authenticationEntryPoint))
+                                .exceptionHandling(ex -> ex
+                                                .authenticationEntryPoint(authenticationEntryPoint)
+                                                .accessDeniedHandler(accessDeniedHandler))
 
                                 // Endpoint yetkilendirmeleri
                                 .authorizeHttpRequests(auth -> auth
