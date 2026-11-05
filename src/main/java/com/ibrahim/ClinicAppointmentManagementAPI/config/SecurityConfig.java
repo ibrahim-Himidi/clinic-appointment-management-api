@@ -43,8 +43,6 @@ public class SecurityConfig {
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .exceptionHandling(ex -> ex
-                                                .authenticationEntryPoint(authenticationEntryPoint))
-                                .exceptionHandling(ex -> ex
                                                 .authenticationEntryPoint(authenticationEntryPoint)
                                                 .accessDeniedHandler(accessDeniedHandler))
 
@@ -52,7 +50,9 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
 
                                                 // Login herkese açık
-                                                .requestMatchers("/api/auth/login").permitAll()
+                                                .requestMatchers(
+                                                        "/api/auth/login" , "/api/auth/refresh")
+                                                                .permitAll()
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                                 .requestMatchers("/api/receptionist/**")
                                                 .hasAnyRole("RECEPTIONIST", "ADMIN")

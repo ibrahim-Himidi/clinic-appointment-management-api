@@ -6,7 +6,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.ibrahim.ClinicAppointmentManagementAPI.dto.request.LoginRequestDTO;
+import com.ibrahim.ClinicAppointmentManagementAPI.dto.request.RefreshTokenRequestDTO;
 import com.ibrahim.ClinicAppointmentManagementAPI.dto.response.LoginResponseDTO;
+import com.ibrahim.ClinicAppointmentManagementAPI.dto.response.RefreshTokenResponseDTO;
+import com.ibrahim.ClinicAppointmentManagementAPI.entity.RefreshToken;
+import com.ibrahim.ClinicAppointmentManagementAPI.entity.User;
 import com.ibrahim.ClinicAppointmentManagementAPI.security.JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final RefreshTokenService refreshTokenService;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
@@ -26,6 +31,17 @@ public class AuthService {
                         request.password()));
         String token = jwtService.generateToken(authentication.getName());
         return new LoginResponseDTO(token, "Bearer");
+    }
+
+    public RefreshTokenResponseDTO refresh(RefreshTokenRequestDTO request) {
+
+        RefreshToken refreshToken = refreshTokenService.validateRefreshToken(request.refreshToken());
+
+        User user = refreshToken.getUser();
+        String accessToken = jwtService.generateToken(user.getEmail());
+        String newRefreshToken = refreshTokenService.createRefreshToken(user);
+
+        return new RefreshTokenResponseDTO(accessToken,newRefreshToken,"Bearer");
     }
 
 }
