@@ -10,6 +10,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -51,4 +53,20 @@ public class GlobalExceptionHandler {
     ){
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
     }
+
+
+ @ExceptionHandler(InvalidRefreshTokenException.class)
+public ResponseEntity<Map<String, Object>> handleInvalidRefreshToken(
+        InvalidRefreshTokenException ex,
+        HttpServletRequest request) {
+
+    Map<String, Object> error = Map.of(
+            "status", 401,
+            "error", "Unauthorized",
+            "message", ex.getMessage(),
+            "path", request.getRequestURI()
+    );
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+}
 }

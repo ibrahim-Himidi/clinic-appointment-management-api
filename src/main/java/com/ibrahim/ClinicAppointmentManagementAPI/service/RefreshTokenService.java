@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.ibrahim.ClinicAppointmentManagementAPI.entity.RefreshToken;
 import com.ibrahim.ClinicAppointmentManagementAPI.entity.User;
+import com.ibrahim.ClinicAppointmentManagementAPI.exception.InvalidRefreshTokenException;
 import com.ibrahim.ClinicAppointmentManagementAPI.repository.RefreshTokenRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -78,12 +79,12 @@ public class RefreshTokenService {
         String hashedToken = hashToken(token);
 
         RefreshToken refreshToken = refreshTokenRepository.findByTokenHash(hashedToken)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid refresh token"));
 
         if (refreshToken.isRevoked())
-            throw new IllegalArgumentException("this token is revoked");
+            throw new InvalidRefreshTokenException("this token is revoked");
         if (!refreshToken.getExpiresAt().isAfter(Instant.now()))
-            throw new IllegalArgumentException("Refresh token expired");
+            throw new InvalidRefreshTokenException("Refresh token expired");
 
         return refreshToken;
     }
